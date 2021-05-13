@@ -1,3 +1,3 @@
-# Flask를 활용한 다양한 서비스
+# Flask를 활용한 이미지 포렌식 사이트
 ---
-(pyini) python3 run.py
+> python run.py

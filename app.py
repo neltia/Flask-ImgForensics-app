@@ -13,9 +13,9 @@ logging.basicConfig(level=logging.INFO) # filename="/var/log/flask.log"
 # api setting
 api = Api(
     app,
-    version='0.1',
-    title='Trivy API Server',
-    description='Trivy 컨테이너를 사용한 도커 취약점 진단'
+    version='0.01',
+    title='이미지 파일 분석 테스트를 위한 API',
+    description=''
 )
 
 

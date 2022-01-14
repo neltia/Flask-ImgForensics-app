@@ -1,4 +1,5 @@
 # flask lib
+from inspect import signature
 from public_lib import *
 from flask import request
 # addtion lib
@@ -48,7 +49,7 @@ class img_info(Resource):
         return result
 
 
-# info-2. 이미지 파일 EXIF 데이터 확인
+# info-2. 이미지 파일 데이터 확인
 @api.route(f'/{api_ver}/image')
 class img_exif(Resource):
     def get(self):
@@ -76,6 +77,10 @@ class img_exif(Resource):
         tags = exifread.process_file(raw_data)
         raw_data.close()
 
+        raw_data = open(f"{path_dir}/{filename}", 'rb')
+        signatures = raw_data.read(16)
+        raw_data.close()
+
         # Result
         msg = "test"
         result = {
@@ -84,6 +89,8 @@ class img_exif(Resource):
             "sha256": filehash,
             "filesize": os.path.getsize(f"{path_dir}/{filename}"),
             "filetype": os.path.splitext(filename)[-1][1:],
-            "exif_tags": str(tags)
+            "sigature": str(signatures),
+            "sigature_hex": signatures.hex(),
+            "exif_tags": str(tags),
         }
         return result

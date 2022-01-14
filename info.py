@@ -77,6 +77,7 @@ class img_exif(Resource):
         tags = exifread.process_file(raw_data)
         raw_data.close()
 
+        # Signatures
         raw_data = open(f"{path_dir}/{filename}", 'rb')
         signatures = raw_data.read(16)
         raw_data.close()

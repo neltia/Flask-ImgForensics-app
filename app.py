@@ -14,8 +14,8 @@ logging.basicConfig(level=logging.INFO) # filename="/var/log/flask.log"
 api = Api(
     app,
     version='0.01',
-    title='이미지 파일 분석 테스트를 위한 API',
-    description=''
+    title='flask-imgforensics-api',
+    description='이미지 파일 분석 테스트를 위한 API'
 )
 
 

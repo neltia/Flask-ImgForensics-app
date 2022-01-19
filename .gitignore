@@ -1,1 +1,3 @@
-main/__pycache__/*
+__pycache__/*
+views/__pycache__/*
+test/*

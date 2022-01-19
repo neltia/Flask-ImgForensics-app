@@ -4,6 +4,9 @@ from public_lib import *
 from flask import request
 # addtion lib
 from werkzeug.utils import secure_filename
+from iptcinfo3 import IPTCInfo
+import numpy as np
+import cv2
 import exifread
 import sys
 import hashlib
@@ -32,7 +35,21 @@ class img_info(Resource):
         filetype = os.path.splitext(filename)[-1]
         hash_sha256 = hashlib.sha256(raw_data).hexdigest()
         raw_file.close()
-        os.rename(f"{path_dir}/{filename}", f"{path_dir}/{hash_sha256}{filetype}")
+        try:
+            os.rename(f"{path_dir}/{filename}", f"{path_dir}/{hash_sha256}{filetype}")
+        except FileExistsError:
+            msg = "FileExistsError"
+            result = {
+                "result_code": -1,
+                "result_message": msg,
+                "filename": filename,
+                "md5": hashlib.md5(raw_data).hexdigest(),
+                "sha1": hashlib.sha1(raw_data).hexdigest(),
+                "sha256": hash_sha256,
+                "filesize": os.path.getsize(f"{path_dir}/{filename}"),
+                "filetype": filetype[1:]
+            }
+            return result
 
         # Result
         msg = "Success"
@@ -82,6 +99,31 @@ class img_exif(Resource):
         signatures = raw_data.read(16)
         raw_data.close()
 
+        # ELA (Error Level Analysis)
+        # img1 = cv2.imread(f"{path_dir}/{filename}")
+        '''
+        img_array = np.fromfile(f"{path_dir}/{filename}", np.uint8)
+        img1 = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+        jpg_quality1 = 95
+        jpg_quality2 = 90
+        scale = 15
+        cv2.imwrite(f"{path_dir}/c95_{filename}", img1, [cv2.IMWRITE_JPEG_QUALITY, jpg_quality1])
+        img2 = cv2.imread(f"{path_dir}/c95_{filename}")
+        diff1 = scale * cv2.absdiff(img1, img2)
+        cv2.imwrite(f"{path_dir}/c90_{filename}", img2, [cv2.IMWRITE_JPEG_QUALITY, jpg_quality2])
+        img3 = cv2.imread(f"{path_dir}/c90_{filename}")
+        diff2 = scale * cv2.absdiff(img2, img3)
+        cv2.imwrite(f"{path_dir}/c95_{filename}", diff1)
+        cv2.imwrite(f"{path_dir}/c90_{filename}", diff2)
+        cv2.imshow("ela95", diff1)
+        cv2.imshow("ela90", diff2)
+        cv2.waitKey(0)
+        '''
+
+        # IPTCInfo
+        info = IPTCInfo(f"{path_dir}/{filename}", force=True)
+        print(info)
+
         # Result
         msg = "test"
         result = {
@@ -93,5 +135,6 @@ class img_exif(Resource):
             "sigature": str(signatures),
             "sigature_hex": signatures.hex(),
             "exif_tags": str(tags),
+            "iptci_nfo": str(info)
         }
         return result

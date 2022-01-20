@@ -20,7 +20,7 @@
             Photo upload
         </h2>
         <div class="col-12">
-            <form action="{{url_for('process.process_dashboard')}}" method="POST" enctype="multipart/form-data" class="justify-content">
+            <form action="{{url_for('process.img_process')}}" method="POST" enctype="multipart/form-data" class="justify-content">
                 <div style="float: left;">
                     {{ form.csrf_token() }}
                     {{ form.form_file(size=20, class="form-control form-control-lg") }}

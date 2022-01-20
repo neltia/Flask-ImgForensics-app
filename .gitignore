@@ -1,3 +1,4 @@
 __pycache__/*
 views/__pycache__/*
 test/*
+static/uploads/*

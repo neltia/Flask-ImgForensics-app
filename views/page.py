@@ -6,8 +6,6 @@ from public_lib import *
 branch = "projects"
 blueprint = Blueprint(branch, __name__, url_prefix='/img')
 
-# path
-img_path = "././analysis"
 
 # 대시보드
 @blueprint.route("/imgproc", methods=['GET', 'POST'])

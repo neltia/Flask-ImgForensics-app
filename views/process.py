@@ -1,8 +1,15 @@
-# 모듈 호출
+# flask
 from flask import Blueprint
+from matplotlib.image import thumbnail
 from public_lib import *
+# process lib
+import json
+# image lib
+from werkzeug.utils import secure_filename
 from PIL import Image
 import imagehash
+import exifread
+import hashlib
 
 
 # 로깅 설정
@@ -12,33 +19,53 @@ blueprint = Blueprint("process", __name__, url_prefix='/img')
 # form setting
 class FileForm(FlaskForm):
     form_file = FileField(validators=[FileRequired('업로드할 파일을 넣어주세요')])
-# path
-img_path = "././uplodas"
+
 
 # 대시보드
 @blueprint.route("/imgproc", methods=['GET', 'POST'])
-def process_dashboard():
+def img_process():
+    # 로우 데이터 수신
     form = FileForm()
-    img_data = form.form_file.data
-    img_data.save(f'{img_path}/{img_data.filename}')
-    print(img_data)
-    img_hash = imagehash.average_hash(Image.open(f'{img_path}/{img_data.filename}'))
-    print("img_hash:", img_hash)
-    return redirect(url_for("process.page_dashboard", img_hash=img_hash))
-    # "http://localhost:5000/img/dashboard/{img_hash}")
+    raw_file = form.form_file.data
+    filename = secure_filename(raw_file.filename)
+    raw_file.save(f'{path_dir}/{filename}')
+
+    # 파일 이름 SHA-256 값으로 변경
+    raw_data = raw_file.read()
+    filetype = os.path.splitext(filename)[-1]
+    img_hash = hashlib.sha256(raw_data).hexdigest()
+    raw_file.close()
+    try:
+        os.rename(f"{path_dir}/{filename}", f"{path_dir}/{img_hash}{filetype}")
+    except FileExistsError:
+        pass
+
+    # 이미지 데이터 분석 및 처리
+    img_data = {}
+    img_data["img_name"] = filename
+    img_data["hashed_name"] = f"{img_hash}{filetype}"
+    img_data["img_md5"] = hashlib.md5(raw_data).hexdigest()
+    img_data["img_sha1"] = hashlib.sha1(raw_data).hexdigest()
+    img_data["img_sha256"] = img_hash
+    img_data["filesize"] = os.path.getsize(f"{path_dir}/{img_hash}{filetype}")
+    img_data["filetype"] = filetype[1:]
+    return redirect(url_for("process.page_dashboard", img_hash=img_hash, img_data=img_data))
 
 
-@blueprint.route("/dashboard", methods=['GET', 'POST'])
 @blueprint.route("/dashboard/<string:img_hash>")
-def page_dashboard(img_hash=None):
-    if img_hash is None:
-        hash_value = request.args.get("img_hash", type=str)
-        return redirect(f"/img/dashboard/{hash_value}")
+def page_dashboard(img_hash):
+    img_data = json.loads(request.args.get('img_data').replace("'", "\""))
+    hashed_name = img_data["hashed_name"]
 
-    logger.warning(img_hash)
+    image_thumb = Image.open(f"{path_dir}/{hashed_name}")
+    image_thumb.thumbnail((100, 100))
+    image_thumb.save(f'{path_dir}/thumb_{hashed_name}')
+
     form = FileForm()
     return render_template(
         "dashboard.html",
         form=form,
-        img_hash=img_hash
+        img_hash=img_hash,
+        load_name=f"uploads/thumb_{hashed_name}",
+        img_data=img_data
     )

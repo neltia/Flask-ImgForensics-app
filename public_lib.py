@@ -12,4 +12,5 @@ import os
 
 
 # development option
-path_dir = os.path.abspath(f"./uplodas")
+path_dir = os.path.abspath(f"./static/uploads")
+# path_dir = os.path.abspath(f"./uploads")

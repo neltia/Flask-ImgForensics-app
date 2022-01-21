@@ -8,47 +8,51 @@
 <div class="container-fluid">
     <div class="media row mb-3">
         <div class="col-md-2">
-            <img src="{{ url_for('static', filename=load_name) }}" alt="image section" >
+            <img class="img img-fluid" src="{{ url_for('static', filename=load_name) }}" alt="image section" >
         </div>
         <div class="col-md-10">
             <h3>Image analysis: {{ img_data['img_name'] }}</h3>
-            <small class="text-primary">Submitted at: </small>
+            <small class="text-primary">Submitted at: {{ analyzed_time }}</small>
         </div>
     </div>
 
     <!-- Tabs -->
     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
         <li class="nav-item">
-          <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab"
-            aria-controls="pills-home" aria-selected="true">Dashboard</a>
+          <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-dashboard" role="tab"
+            aria-controls="pills-dashboard" aria-selected="true">Dashboard</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab"
-            aria-controls="pills-profile" aria-selected="false">Static</a>
+          <a class="nav-link" id="pills-static-tab" data-toggle="pill" href="#pills-static" role="tab"
+            aria-controls="pills-static" aria-selected="false">Static</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab"
-            aria-controls="pills-contact" aria-selected="false">EXIF</a>
+          <a class="nav-link" id="pills-exif-tab" data-toggle="pill" href="#pills-exif" role="tab"
+            aria-controls="pills-exif" aria-selected="false">EXIF</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab"
-              aria-controls="pills-contact" aria-selected="false">Signatures</a>
+            <a class="nav-link" id="pills-signature-tab" data-toggle="pill" href="#pills-signature" role="tab"
+              aria-controls="pills-signature" aria-selected="false">Signatures</a>
           </li>
       </ul>
       <div class="tab-content pt-2 pl-1" id="pills-tabContent">
-        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-            Dashboard
+        <div class="tab-pane fade show active" id="pills-dashboard" role="tabpanel" aria-labelledby="pills-dashboard-tab">
+            <table class="table table-sm">
+
+            </table>
         </div>
-        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+        <div class="tab-pane fade" id="pills-static" role="tabpanel" aria-labelledby="pills-static-tab">
             Static
         </div>
-        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+        <div class="tab-pane fade" id="pills-exif" role="tabpanel" aria-labelledby="pills-exif-tab">
             EXIF Meta data
         </div>
-        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+        <div class="tab-pane fade" id="pills-signature" role="tabpanel" aria-labelledby="pills-signature-tab">
             Signatures detected
         </div>
       </div>
     <!-- Tabs -->
+
+    {{ img_data }}
 </div>
 {% endblock %}

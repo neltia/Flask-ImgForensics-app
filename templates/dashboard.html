@@ -42,7 +42,49 @@
             </table>
         </div>
         <div class="tab-pane fade" id="pills-static" role="tabpanel" aria-labelledby="pills-static-tab">
-            Static
+            <p class="fs-3">Static info</p>
+            <table class="table table-sm table-dark table-bordered table-hover">
+                <thead>
+                    <th>Type</th>
+                    <th>Value</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">FileType</th>
+                        <td>{{ img_data["filetype"] }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Dimensions</th>
+                        <td>{{ img_data["filesize"] }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">FileSize</th>
+                        <td>{{ img_data["filevolum"] }} B</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p class="fs-3">Hashes</p>
+            <table class="table table-sm table-dark table-bordered table-hover">
+                <thead>
+                    <th>Type</th>
+                    <th>Value</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">SHA1</th>
+                        <td>{{ img_data["img_sha1"] }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">SHA256</th>
+                        <td>{{ img_data["img_sha256"] }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">MD5</th>
+                        <td>{{ img_data["img_md5"] }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <div class="tab-pane fade" id="pills-exif" role="tabpanel" aria-labelledby="pills-exif-tab">
             EXIF Meta data

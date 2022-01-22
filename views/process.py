@@ -3,16 +3,17 @@ from flask import Blueprint
 from isort import file
 from matplotlib.image import thumbnail
 from public_lib import *
+# image lib
+from werkzeug.utils import secure_filename
+from PIL import Image
+from PIL.ExifTags import TAGS
 # process lib
 import json
 import random
 import string
 import hashlib
 import datetime
-# image lib
-from werkzeug.utils import secure_filename
-from PIL import Image
-from PIL.ExifTags import TAGS
+import folium
 
 
 # 로깅 설정
@@ -83,7 +84,10 @@ def img_process():
         exifGPS = taglabel['GPSInfo']
         latData =  str(get_decimal_from_dms(exifGPS[2], exifGPS[1]))
         longData = str(get_decimal_from_dms(exifGPS[4], exifGPS[3]))
-        print(latData, longData)
+        folium_map = folium.Map(location=(latData, longData), zoom_start=15)
+        folium.Marker([latData, longData],
+              popup="This Place",
+              tooltip="This Place").add_to(folium_map)
 
     # 이미지 데이터 처리
     img_data = {}
@@ -99,9 +103,11 @@ def img_process():
     img_data["DateTimeOriginal"] = taglabel['DateTimeOriginal']
     img_data["DateTimeDigitized"] = taglabel['DateTimeDigitized']
     img_data["DateTime"] = taglabel['DateTime']
-    # img_data["signatures"] =
-    print(img_data)
-    return redirect(url_for("process.page_dashboard", img_hash=img_hash, img_data=img_data))
+    return redirect(
+        url_for("process.page_dashboard", img_hash=img_hash, img_data=img_data, folium_map=folium_map._repr_html_(),
+        code=307
+        )
+    )
 
 
 # 이미지 데이터 표현
@@ -109,6 +115,7 @@ def img_process():
 def page_dashboard(img_hash):
     # load data
     img_data = json.loads(request.args.get('img_data').replace("'", "\""))
+    folium_map = request.args.get('folium_map')
     hashed_name = img_data["hashed_name"]
 
     # thumbnail image
@@ -128,5 +135,6 @@ def page_dashboard(img_hash):
         img_hash=img_hash,
         load_name=f"uploads/thumb_{hashed_name}",
         img_data=img_data,
-        analyzed_time=analyzed_time
+        analyzed_time=analyzed_time,
+        folium_map=folium_map
     )

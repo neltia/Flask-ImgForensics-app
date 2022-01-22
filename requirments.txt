@@ -6,4 +6,4 @@ ExifRead==2.3.2
 ImageHash==4.2.1
 IPTCInfo3==2.1.4
 WTForms==2.3.3
-numpy==1.21.4
+folium==0.12.1.post1

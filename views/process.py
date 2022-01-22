@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 from PIL.ExifTags import TAGS
 # process lib
+from pymongo import MongoClient
 import json
 import random
 import string
@@ -16,10 +17,15 @@ import datetime
 import folium
 
 
-# 로깅 설정
+# var setting
+blueprint = Blueprint("process", __name__, url_prefix='/img')
+connection = MongoClient()
+db = connection["img_forensic"]
+collection = db["imginfo"]
+cursor = db.collection
+# logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-blueprint = Blueprint("process", __name__, url_prefix='/img')
 # form setting
 class FileForm(FlaskForm):
     form_file = FileField(validators=[FileRequired('업로드할 파일을 넣어주세요')])
@@ -84,10 +90,6 @@ def img_process():
         exifGPS = taglabel['GPSInfo']
         latData =  str(get_decimal_from_dms(exifGPS[2], exifGPS[1]))
         longData = str(get_decimal_from_dms(exifGPS[4], exifGPS[3]))
-        folium_map = folium.Map(location=(latData, longData), zoom_start=15)
-        folium.Marker([latData, longData],
-              popup="This Place",
-              tooltip="This Place").add_to(folium_map)
 
     # 이미지 데이터 처리
     img_data = {}
@@ -103,20 +105,27 @@ def img_process():
     img_data["DateTimeOriginal"] = taglabel['DateTimeOriginal']
     img_data["DateTimeDigitized"] = taglabel['DateTimeDigitized']
     img_data["DateTime"] = taglabel['DateTime']
-    return redirect(
-        url_for("process.page_dashboard", img_hash=img_hash, img_data=img_data, folium_map=folium_map._repr_html_(),
-        code=307
-        )
-    )
+
+    # db insert
+    insert_data = cursor.insert_one(img_data)
+    print(insert_data)
+    return redirect(url_for("process.page_dashboard", img_hash=img_hash))
 
 
 # 이미지 데이터 표현
 @blueprint.route("/dashboard/<string:img_hash>")
 def page_dashboard(img_hash):
-    # load data
-    img_data = json.loads(request.args.get('img_data').replace("'", "\""))
-    folium_map = request.args.get('folium_map')
+    # load data (db find)
+    img_data = cursor.find_one({"img_sha256": img_hash})
     hashed_name = img_data["hashed_name"]
+
+    # folium map
+    locatoin = tuple(img_data["exif_gpsinfo"])
+    folium_map = folium.Map(location=locatoin, zoom_start=15)
+    folium.Marker(img_data["exif_gpsinfo"],
+            popup="This Place",
+            tooltip="This Place").add_to(folium_map)
+    folium_map=folium_map._repr_html_()
 
     # thumbnail image
     image_thumb = Image.open(f"{path_dir}/{hashed_name}")

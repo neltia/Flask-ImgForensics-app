@@ -57,6 +57,11 @@ def img_process():
     except FileExistsError:
         os.remove(f'{path_dir}/{filename_secure}')
 
+    # exists check
+    img_data = cursor.find_one({"img_sha256": img_hash})
+    if img_data is not None:
+        cursor.delete_one({"img_sha256": img_hash})
+
     # 이미지 데이터 분석
     # Signatures
     with open(f"{path_dir}/{img_hash}{filetype}", 'rb') as f:
@@ -102,9 +107,13 @@ def img_process():
     img_data["filevolum"] = os.path.getsize(f"{path_dir}/{img_hash}{filetype}")
     img_data["filetype"] = filetype[1:]
     img_data["exif_gpsinfo"] = [latData, longData]
+    img_data["UserComment"] = taglabel['UserComment']
     img_data["DateTimeOriginal"] = taglabel['DateTimeOriginal']
     img_data["DateTimeDigitized"] = taglabel['DateTimeDigitized']
     img_data["DateTime"] = taglabel['DateTime']
+    img_data["Make"] = taglabel['Make']
+    img_data["Model"] = taglabel['Model']
+    img_data["Orientation"] = taglabel['Orientation']
 
     # db insert
     insert_data = cursor.insert_one(img_data)

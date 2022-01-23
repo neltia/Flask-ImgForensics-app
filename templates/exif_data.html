@@ -1,0 +1,28 @@
+<p class="font-weight-bold">EXIF Metadata</p>
+<table class="table table-sm table-dark table-bordered table-hover">
+    <thead>
+        <th>Segment</th>
+        <th>Key: Value</th>
+    </thead>
+    <tbody>
+        <tr>
+            <th scope="row">PHOTO</th>
+            <td>
+                DateTimeDigitized: {{ img_data["DateTimeDigitized"] }}<br>
+                DateTimeOriginal: {{ img_data["DateTimeOriginal"] }}<br>
+                UserComment: {{ img_data["UserComment"] }}<br>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">IMAGE</th>
+            <td>
+                DateTime: {{ img_data["DateTime"] }}<br>
+                ImageWidth: {{ img_data["filesize"][0] }}<br>
+                ImageLength: {{ img_data["filesize"][1] }}<br>
+                Make: {{ img_data["Make"] }}<br>
+                Model: {{ img_data["Model"] }}<br>
+                Orientation: {{ img_data["Orientation"] }}<br>
+            </td>
+        </tr>
+    </tbody>
+</table>

@@ -31,63 +31,26 @@
             aria-controls="pills-exif" aria-selected="false">EXIF</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" id="pills-map-tab" data-toggle="pill" href="#pills-map" role="tab"
+              aria-controls="pills-map" aria-selected="false">Map
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" id="pills-signature-tab" data-toggle="pill" href="#pills-signature" role="tab"
               aria-controls="pills-signature" aria-selected="false">Signatures</a>
           </li>
       </ul>
       <div class="tab-content pt-2 pl-1" id="pills-tabContent">
         <div class="tab-pane fade show active" id="pills-dashboard" role="tabpanel" aria-labelledby="pills-dashboard-tab">
-            <table class="table table-sm">
-
-            </table>
         </div>
         <div class="tab-pane fade" id="pills-static" role="tabpanel" aria-labelledby="pills-static-tab">
-            <p class="fs-3">Static info</p>
-            <table class="table table-sm table-dark table-bordered table-hover">
-                <thead>
-                    <th>Type</th>
-                    <th>Value</th>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">FileType</th>
-                        <td>{{ img_data["filetype"] }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Dimensions</th>
-                        <td>{{ img_data["filesize"] }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">FileSize</th>
-                        <td>{{ img_data["filevolum"] }} B</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <p class="fs-3">Hashes</p>
-            <table class="table table-sm table-dark table-bordered table-hover">
-                <thead>
-                    <th>Type</th>
-                    <th>Value</th>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">SHA1</th>
-                        <td>{{ img_data["img_sha1"] }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">SHA256</th>
-                        <td>{{ img_data["img_sha256"] }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">MD5</th>
-                        <td>{{ img_data["img_md5"] }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            {% include "static_data.html" %}
         </div>
         <div class="tab-pane fade" id="pills-exif" role="tabpanel" aria-labelledby="pills-exif-tab">
-            EXIF Meta data
+            {% include "exif_data.html" %}
+        </div>
+        <div class="tab-pane fade" id="pills-map" role="tabpanel" aria-labelledby="pills-map-tab">
+            <p class="font-weight-bold">GPS Localization</p>
             <div class="col-md-6 offset-md-3">
                 {{ folium_map|safe }}
             </div>

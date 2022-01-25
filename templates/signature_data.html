@@ -8,11 +8,34 @@
         <th scope="row">Header</th>
         <th id="header">{{ img_data['header_signature'] }}</th>
     </tr>
+    <tr>
+        <th scope="row">Footer</th>
+        <th id="footer">{{ img_data['footer_signatrue'] }}</th>
+    </tr>
+</table>
+
+<p class="font-weight-bold">Signatures: {{ img_data['filetype'] }}</p>
+<table class="table table-sm table-dark table-bordered table-hover">
+    <thead>
+        <th>Type</th>
+        <th>Value</th>
+    </thead>
+    <tr>
+        <th scope="row">Header</th>
+        <th id="header"></th>
+    </tr>
+    <tr>
+        <th scope="row">Footer</th>
+        <th id="footer"></th>
+    </tr>
 </table>
 
 <script>
     window.onload = function(){
         const headerText = document.querySelector('#header')
         headerText.innerText = headerText.innerText.replace(/(.{2})/g,"$1 ")
+
+        const footerText = document.querySelector('#footer')
+        footerText.innerText = footerText.innerText.replace(/(.{2})/g,"$1 ")
     }
 </script>

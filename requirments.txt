@@ -8,3 +8,4 @@ IPTCInfo3==2.1.4
 WTForms==2.3.3
 folium==0.12.1.post1
 pymongo==4.0.1
+pytesseract==0.3.8

@@ -16,18 +16,21 @@ import string
 import hashlib
 import datetime
 import folium
-import re
+import pytesseract
 
 
 # var setting
 blueprint = Blueprint("process", __name__, url_prefix='/img')
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
 connection = MongoClient()
 db = connection["img_forensic"]
 collection = db["imginfo"]
 cursor = db.collection
+
 # logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 # form setting
 class FileForm(FlaskForm):
     form_file = FileField(validators=[FileRequired('업로드할 파일을 넣어주세요')])
@@ -40,6 +43,7 @@ def img_process():
     form = FileForm()
     raw_file = form.form_file.data
     filename = raw_file.filename
+    img_data = {}
 
     # 한글 이름 처리 및 데이터 저장
     filename_secure = secure_filename(filename)
@@ -60,8 +64,8 @@ def img_process():
         os.remove(f'{path_dir}/{filename_secure}')
 
     # exists check
-    img_data = cursor.find_one({"img_sha256": img_hash})
-    if img_data is not None:
+    query_data = cursor.find_one({"img_sha256": img_hash})
+    if query_data is not None:
         cursor.delete_one({"img_sha256": img_hash})
 
     # 이미지 데이터 분석
@@ -73,8 +77,11 @@ def img_process():
     footer_signatrue = file_hex[-16:].decode('utf-8').upper()
 
     # PIL open
-    # - EXIF
+    # - OCR & EXIF
     image_pil = Image.open(f"{path_dir}/{img_hash}{filetype}")
+    img_pytesseract = pytesseract.image_to_string(image_pil)
+    # img_pytesseract = pytesseract.image_to_string(image_pil, lang='kor')
+
     img_exif = image_pil._getexif()
     image_pil.close()
     exif_data = img_exif.items()
@@ -86,6 +93,7 @@ def img_process():
             except AttributeError:
                 continue
             taglabel[decoded] = value
+        print(taglabel)
 
         # - EXIF GPS parsing
         # 북위/남위 : Key 1 (N/S)
@@ -97,12 +105,17 @@ def img_process():
         #     Key 2: (37.0, 34.0, 10.2),
         #     Key 3: 'E',
         #     Key 4: (126.0, 53.0, 56.79)
-        exifGPS = taglabel['GPSInfo']
-        latData =  str(get_decimal_from_dms(exifGPS[2], exifGPS[1]))
-        longData = str(get_decimal_from_dms(exifGPS[4], exifGPS[3]))
+        if 'GPSInfo' in taglabel:
+            exifGPS = taglabel['GPSInfo']
+            latData =  str(get_decimal_from_dms(exifGPS[2], exifGPS[1]))
+            longData = str(get_decimal_from_dms(exifGPS[4], exifGPS[3]))
+            img_data["exif_gpsinfo"] = [latData, longData]
+            del taglabel["GPSInfo"]
+
+        # - exif meta data
+        img_data.update(taglabel)
 
     # 이미지 데이터 처리
-    img_data = {}
     img_data["img_name"] = filename
     img_data["hashed_name"] = f"{img_hash}{filetype}"
     img_data["img_md5"] = hashlib.md5(raw_data).hexdigest()
@@ -114,19 +127,15 @@ def img_process():
     # - signatrue
     img_data["header_signature"] = header_signature
     img_data["footer_signatrue"] = footer_signatrue
-    # - exif meta data
-    img_data["exif_gpsinfo"] = [latData, longData]
-    img_data["UserComment"] = taglabel['UserComment']
-    img_data["DateTimeOriginal"] = taglabel['DateTimeOriginal']
-    img_data["DateTimeDigitized"] = taglabel['DateTimeDigitized']
-    img_data["DateTime"] = taglabel['DateTime']
-    img_data["Make"] = taglabel['Make']
-    img_data["Model"] = taglabel['Model']
-    img_data["Orientation"] = taglabel['Orientation']
+    # - image ocr
+    img_data["img_strings"] = str(img_pytesseract)
 
     # db insert
-    insert_data = cursor.insert_one(img_data)
-    print(insert_data)
+    if "XResolution" in img_data or "YResolution" in img_data:
+        del img_data["XResolution"]
+        del img_data["YResolution"]
+    print(img_data)
+    cursor.insert_one(img_data)
     return redirect(url_for("process.page_dashboard", img_hash=img_hash))
 
 
@@ -138,12 +147,15 @@ def page_dashboard(img_hash):
     hashed_name = img_data["hashed_name"]
 
     # folium map
-    locatoin = tuple(img_data["exif_gpsinfo"])
-    folium_map = folium.Map(location=locatoin, zoom_start=15)
-    folium.Marker(img_data["exif_gpsinfo"],
-            popup="This Place",
-            tooltip="This Place").add_to(folium_map)
-    folium_map=folium_map._repr_html_()
+    if "exif_gpsinfo" in img_data:
+        locatoin = tuple(img_data["exif_gpsinfo"])
+        folium_map = folium.Map(location=locatoin, zoom_start=15)
+        folium.Marker(img_data["exif_gpsinfo"],
+                popup="This Place",
+                tooltip="This Place").add_to(folium_map)
+        folium_map=folium_map._repr_html_()
+    else:
+        folium_map = "<div></div>"
 
     # thumbnail image
     image_thumb = Image.open(f"{path_dir}/{hashed_name}")

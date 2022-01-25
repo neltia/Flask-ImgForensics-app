@@ -7,6 +7,7 @@ from public_lib import *
 from werkzeug.utils import secure_filename
 from PIL import Image
 from PIL.ExifTags import TAGS
+import binascii
 # process lib
 from pymongo import MongoClient
 import json
@@ -15,6 +16,7 @@ import string
 import hashlib
 import datetime
 import folium
+import re
 
 
 # var setting
@@ -63,9 +65,12 @@ def img_process():
         cursor.delete_one({"img_sha256": img_hash})
 
     # 이미지 데이터 분석
-    # Signatures
+    # - Signatures
     with open(f"{path_dir}/{img_hash}{filetype}", 'rb') as f:
-        signatures = f.read(16)
+        file_bin = f.read()
+    file_hex = binascii.b2a_hex(file_bin)
+    header_signature = file_hex[:16].decode('utf-8').upper()
+    footer_signatrue = file_hex[-16:].decode('utf-8').upper()
 
     # PIL open
     # - EXIF
@@ -106,6 +111,10 @@ def img_process():
     img_data["filesize"] = list(image_pil.size)
     img_data["filevolum"] = os.path.getsize(f"{path_dir}/{img_hash}{filetype}")
     img_data["filetype"] = filetype[1:]
+    # - signatrue
+    img_data["header_signature"] = header_signature
+    img_data["footer_signatrue"] = footer_signatrue
+    # - exif meta data
     img_data["exif_gpsinfo"] = [latData, longData]
     img_data["UserComment"] = taglabel['UserComment']
     img_data["DateTimeOriginal"] = taglabel['DateTimeOriginal']
@@ -148,7 +157,7 @@ def page_dashboard(img_hash):
     # return
     form = FileForm()
     return render_template(
-        "dashboard.html",
+        "result.html",
         form=form,
         img_hash=img_hash,
         load_name=f"uploads/thumb_{hashed_name}",

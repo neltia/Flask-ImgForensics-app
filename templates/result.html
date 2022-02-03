@@ -60,7 +60,7 @@
             </div>
         </div>
         <div class="tab-pane fade" id="pills-ocr" role="tabpanel" aria-labelledby="pills--tab">
-            {{ img_data["img_strings"] }}
+            {% include "ocr_data.html" %}
         </div>
         <div class="tab-pane fade" id="pills-signature" role="tabpanel" aria-labelledby="pills-signature-tab">
             {% include "signature_data.html" %}

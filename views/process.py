@@ -79,8 +79,8 @@ def img_process():
     # PIL open
     # - OCR & EXIF
     image_pil = Image.open(f"{path_dir}/{img_hash}{filetype}")
-    img_pytesseract = pytesseract.image_to_string(image_pil)
-    # img_pytesseract = pytesseract.image_to_string(image_pil, lang='kor')
+    img_pytesseract_en = pytesseract.image_to_string(image_pil)
+    img_pytesseract_kor = pytesseract.image_to_string(image_pil, lang='kor')
 
     img_exif = image_pil._getexif()
     image_pil.close()
@@ -131,7 +131,8 @@ def img_process():
     img_data["header_signature"] = header_signature
     img_data["footer_signatrue"] = footer_signatrue
     # - image ocr
-    img_data["img_strings"] = str(img_pytesseract)
+    img_data["img_strings_en"] = str(img_pytesseract_en)
+    img_data["img_strings_kor"] = str(img_pytesseract_kor)
 
     # db insert
     if "XResolution" in img_data or "YResolution" in img_data:

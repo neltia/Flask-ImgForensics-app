@@ -84,7 +84,10 @@ def img_process():
 
     img_exif = image_pil._getexif()
     image_pil.close()
-    exif_data = img_exif.items()
+    try:
+        exif_data = img_exif.items()
+    except AttributeError:
+        exif_data = None
     if exif_data is not None:
         taglabel = {}
         for tag, value in exif_data:

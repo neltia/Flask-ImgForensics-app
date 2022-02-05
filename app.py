@@ -1,18 +1,19 @@
 # flask
 from flask import Flask
 from flask import render_template
-from datetime import datetime
 # form
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 # views
 from views import process
+from views import result
 
 
 # app config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "justsecretmsg"
 app.register_blueprint(process.blueprint)
+app.register_blueprint(result.blueprint)
 # form setting
 class FileForm(FlaskForm):
     form_file = FileField(validators=[FileRequired('업로드할 파일을 넣어주세요')])

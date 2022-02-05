@@ -1,8 +1,7 @@
 # flask
 from flask import Blueprint
-from isort import file
-from matplotlib.image import thumbnail
 from public_lib import *
+from flask import flash
 # image lib
 from werkzeug.utils import secure_filename
 from PIL import Image
@@ -10,17 +9,15 @@ from PIL.ExifTags import TAGS
 import binascii
 # process lib
 from pymongo import MongoClient
-import json
 import random
 import string
 import hashlib
-import datetime
-import folium
 import pytesseract
+import clipboard
 
 
 # var setting
-blueprint = Blueprint("process", __name__, url_prefix='/img')
+blueprint = Blueprint("process", __name__, url_prefix='/process')
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
 connection = MongoClient()
 db = connection["img_forensic"]
@@ -38,7 +35,7 @@ class FileForm(FlaskForm):
 
 # 이미지 처리
 @blueprint.route("/imgproc", methods=['GET', 'POST'])
-def img_process():
+def process_img():
     # 로우 데이터 수신
     form = FileForm()
     raw_file = form.form_file.data
@@ -96,7 +93,6 @@ def img_process():
             except AttributeError:
                 continue
             taglabel[decoded] = value
-        print(taglabel)
 
         # - EXIF GPS parsing
         # 북위/남위 : Key 1 (N/S)
@@ -138,46 +134,13 @@ def img_process():
     if "XResolution" in img_data or "YResolution" in img_data:
         del img_data["XResolution"]
         del img_data["YResolution"]
-    print(img_data)
     cursor.insert_one(img_data)
-    return redirect(url_for("process.page_dashboard", img_hash=img_hash))
+    return redirect(url_for("result.page_dashboard", img_hash=img_hash))
 
 
-# 이미지 데이터 표현
-@blueprint.route("/dashboard/<string:img_hash>")
-def page_dashboard(img_hash):
-    # load data (db find)
-    img_data = cursor.find_one({"img_sha256": img_hash})
-    hashed_name = img_data["hashed_name"]
-
-    # folium map
-    if "exif_gpsinfo" in img_data:
-        locatoin = tuple(img_data["exif_gpsinfo"])
-        folium_map = folium.Map(location=locatoin, zoom_start=15)
-        folium.Marker(img_data["exif_gpsinfo"],
-                popup="This Place",
-                tooltip="This Place").add_to(folium_map)
-        folium_map=folium_map._repr_html_()
-    else:
-        folium_map = "<div></div>"
-
-    # thumbnail image
-    image_thumb = Image.open(f"{path_dir}/{hashed_name}")
-    image_thumb.thumbnail((120, 120))
-    image_thumb.save(f'{path_dir}/thumb_{hashed_name}')
-
-    # analyzed time
-    time = str(datetime.datetime.now())
-    analyzed_time=time[:time.find('.')]
-
-    # return
-    form = FileForm()
-    return render_template(
-        "result.html",
-        form=form,
-        img_hash=img_hash,
-        load_name=f"uploads/thumb_{hashed_name}",
-        img_data=img_data,
-        analyzed_time=analyzed_time,
-        folium_map=folium_map
-    )
+# 이미지 처리
+@blueprint.route("/copy/<string:img_hash>/<string:data>")
+def process_clipboard(img_hash, data):
+    clipboard.copy(data)
+    flash("클립보드에 복사되었습니다!")
+    return redirect(url_for("result.page_dashboard", img_hash=img_hash))

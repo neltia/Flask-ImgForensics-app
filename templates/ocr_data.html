@@ -1,30 +1,18 @@
 <p class="font-weight-bold">OCR detected</p>
 <div class="row justify-content-between">
     <div class="col-4">
-        한국어 (Korean)
-    </div>
-    <button type="button" class="btn btn-sm btn-outline-info col-4">
-        <i class="far fa-copy fa-lg"></i> Copy
-    </button>
-</div>
-<table class="table table-sm table-dark table-bordered table-hover">
-    <tr>
-        <th id="header">{{ img_data['img_strings_kor'] }}</th>
-    </tr>
-</table>
-
-<hr class="mt-5 mb-5" />
-
-<div class="row justify-content-between">
-    <div class="col-4">
         영어 (Engligsh)
     </div>
-    <button type="button" class="btn btn-sm btn-outline-info col-4">
-        <i class="far fa-copy fa-lg"></i> Copy
-    </button>
+    <a href="{{url_for('process.process_clipboard', data=img_data['img_strings_en'], img_hash=img_data['img_sha256'])}}" class="col-3 ml-5">
+        <button type="button" class="btn btn-sm btn-outline-info">
+            <i class="far fa-copy fa-lg"></i> Copy
+        </button>
+    </a>
 </div>
 <table class="table table-sm table-dark table-bordered table-hover">
     <tr>
         <th id="header">{{ img_data['img_strings_en'] }}</th>
     </tr>
 </table>
+
+<hr class="mt-5 mb-5" />

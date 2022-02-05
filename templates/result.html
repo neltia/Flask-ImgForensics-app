@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <script>
+        alert("{{messages[-1]}}")
+    </script>
+{% endif %}
+{% endwith %}
+
 <!-- Nav -->
 {% include "nav.html" %}
 <!-- Nav -->

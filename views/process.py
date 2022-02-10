@@ -34,7 +34,7 @@ class FileForm(FlaskForm):
 
 
 # 이미지 처리
-@blueprint.route("/imgproc", methods=['GET', 'POST'])
+@blueprint.route("/imgproc", methods=['POST'])
 def process_img():
     # 로우 데이터 수신
     form = FileForm()
@@ -43,9 +43,11 @@ def process_img():
     img_data = {}
 
     # 한글 이름 처리 및 데이터 저장
+    allow_extension = ["jpg", "jpeg", "png", "bmp", "rle", "gif", "psd", "tif", "tiff", "exif", "jfif", "raw", "pdf", "svg"]
+    allow_mintype = ["image/png", "image/jpeg"]
+
     filename_secure = secure_filename(filename)
-    extension = ["jpg", "jpeg", "png", "bmp", "rle", "gif", "psd", "tif", "tiff", "exif", "jfif", "raw", "pdf", "svg"]
-    if filename_secure == "" or filename_secure.lower() in extension:
+    if filename_secure == "" or filename_secure.lower() in allow_extension:
         filename_secure = "".join([random.choice(string.ascii_uppercase) for _ in range(10)]) + ".png"
     raw_file.save(f'{path_dir}/{filename_secure}')
 
@@ -53,6 +55,12 @@ def process_img():
     with open(f'{path_dir}/{filename_secure}', 'rb') as f:
         raw_data = f.read()
     filetype = os.path.splitext(filename_secure)[-1]
+    # - 확장자 검사 (check. 1 file_extension)
+    minetype = raw_file.mimetype
+    if minetype not in allow_mintype:
+        flash("허용되지 않은 파일입니다.")
+        return redirect("/")
+
     img_hash = hashlib.sha256(raw_data).hexdigest()
     raw_file.close()
     try:

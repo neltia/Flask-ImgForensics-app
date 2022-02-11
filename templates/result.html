@@ -26,32 +26,47 @@
 
     <!-- Tabs -->
     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <!-- Dashboard -->
         <li class="nav-item">
           <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-dashboard" role="tab"
             aria-controls="pills-dashboard" aria-selected="true">Dashboard</a>
         </li>
+        <!-- Dashboard -->
+        <!-- Static -->
         <li class="nav-item">
           <a class="nav-link" id="pills-static-tab" data-toggle="pill" href="#pills-static" role="tab"
             aria-controls="pills-static" aria-selected="false">Static</a>
         </li>
+        <!-- Static -->
+        <!-- EXIF -->
         <li class="nav-item">
           <a class="nav-link" id="pills-exif-tab" data-toggle="pill" href="#pills-exif" role="tab"
             aria-controls="pills-exif" aria-selected="false">EXIF</a>
         </li>
+        <!-- EXIF -->
+        <!-- Map -->
+        {% if folium_map != "<div></div>" %}
         <li class="nav-item">
             <a class="nav-link" id="pills-map-tab" data-toggle="pill" href="#pills-map" role="tab"
               aria-controls="pills-map" aria-selected="false">Map
             </a>
         </li>
+        {% endif %}
+        <!-- Map -->
+        <!-- Signatures -->
         <li class="nav-item">
             <a class="nav-link" id="pills-signature-tab" data-toggle="pill" href="#pills-signature" role="tab"
               aria-controls="pills-signature" aria-selected="false">Signatures</a>
         </li>
+        <!-- Signatures -->
+        <!-- OCR -->
         <li class="nav-item">
             <a class="nav-link" id="pills-ocr-tab" data-toggle="pill" href="#pills-ocr" role="tab"
               aria-controls="pills-ocr" aria-selected="false">OCR</a>
         </li>
+        <!-- OCR -->
       </ul>
+
       <div class="tab-content pt-2 pl-1" id="pills-tabContent">
         <div class="tab-pane fade show active" id="pills-dashboard" role="tabpanel" aria-labelledby="pills-dashboard-tab">
         </div>

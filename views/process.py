@@ -114,9 +114,12 @@ def process_img():
         #     Key 4: (126.0, 53.0, 56.79)
         if 'GPSInfo' in taglabel:
             exifGPS = taglabel['GPSInfo']
-            latData =  str(get_decimal_from_dms(exifGPS[2], exifGPS[1]))
-            longData = str(get_decimal_from_dms(exifGPS[4], exifGPS[3]))
-            img_data["exif_gpsinfo"] = [latData, longData]
+            try:
+                latData =  str(get_decimal_from_dms(exifGPS[2], exifGPS[1]))
+                longData = str(get_decimal_from_dms(exifGPS[4], exifGPS[3]))
+                img_data["exif_gpsinfo"] = [latData, longData]
+            except KeyError:
+                print("exifGPS:", exifGPS)
             del taglabel["GPSInfo"]
 
         # - exif meta data

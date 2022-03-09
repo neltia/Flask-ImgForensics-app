@@ -14,6 +14,7 @@ import string
 import hashlib
 import pytesseract
 import clipboard
+import bson
 
 
 # var setting
@@ -85,7 +86,7 @@ def process_img():
     # - OCR & EXIF
     image_pil = Image.open(f"{path_dir}/{img_hash}{filetype}")
     img_pytesseract_en = pytesseract.image_to_string(image_pil)
-    img_pytesseract_kor = pytesseract.image_to_string(image_pil, lang='kor')
+    # img_pytesseract_kor = pytesseract.image_to_string(image_pil, lang='kor')
 
     img_exif = image_pil._getexif()
     image_pil.close()
@@ -93,7 +94,9 @@ def process_img():
         exif_data = img_exif.items()
     except AttributeError:
         exif_data = None
-    if exif_data is not None:
+    if exif_data is None:
+        img_data["exif_data"] = {}
+    else:
         taglabel = {}
         for tag, value in exif_data:
             try:
@@ -124,6 +127,9 @@ def process_img():
 
         # - exif meta data
         # img_data.update(taglabel)
+        if "XResolution" in taglabel or "YResolution" in taglabel:
+            del taglabel["XResolution"]
+            del taglabel["YResolution"]
         img_data["exif_data"] = taglabel
 
     # 이미지 데이터 처리
@@ -140,13 +146,15 @@ def process_img():
     img_data["footer_signatrue"] = footer_signatrue
     # - image ocr
     img_data["img_strings_en"] = str(img_pytesseract_en)
-    img_data["img_strings_kor"] = str(img_pytesseract_kor)
 
     # db insert
-    if "XResolution" in img_data or "YResolution" in img_data:
-        del img_data["XResolution"]
-        del img_data["YResolution"]
-    cursor.insert_one(img_data)
+    try:
+        cursor.insert_one(img_data)
+    except bson.errors.InvalidDocument:
+        print(img_data)
+        error_msg = "이미지를 처리하는 중 오류가 발생했습니다."
+        flash(error_msg)
+        return redirect("/")
     return redirect(url_for("result.page_dashboard", img_hash=img_hash))
 
 

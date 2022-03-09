@@ -123,7 +123,8 @@ def process_img():
             del taglabel["GPSInfo"]
 
         # - exif meta data
-        img_data.update(taglabel)
+        # img_data.update(taglabel)
+        img_data["exif_data"] = taglabel
 
     # 이미지 데이터 처리
     img_data["img_name"] = filename

@@ -45,6 +45,7 @@
             aria-controls="pills-exif" aria-selected="false">EXIF</a>
         </li>
         <!-- EXIF -->
+
         <!-- Map -->
         {% if folium_map != "<div></div>" %}
         <li class="nav-item">
@@ -54,17 +55,21 @@
         </li>
         {% endif %}
         <!-- Map -->
+
         <!-- Signatures -->
         <li class="nav-item">
             <a class="nav-link" id="pills-signature-tab" data-toggle="pill" href="#pills-signature" role="tab"
               aria-controls="pills-signature" aria-selected="false">Signatures</a>
         </li>
         <!-- Signatures -->
+
         <!-- OCR -->
+        {% if img_data["img_strings_en"] != "" %}
         <li class="nav-item">
             <a class="nav-link" id="pills-ocr-tab" data-toggle="pill" href="#pills-ocr" role="tab"
               aria-controls="pills-ocr" aria-selected="false">OCR</a>
         </li>
+        {% endif %}
         <!-- OCR -->
       </ul>
 
